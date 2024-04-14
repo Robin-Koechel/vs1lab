@@ -106,6 +106,7 @@ h2 {
   justify-content: center;
   align-items: center;
   height: 100px;
+  width: 100%;
 }
 
 .header__image {
@@ -250,7 +251,7 @@ input[type=submit]:active {
 }
 
 #mapView {
-  height: 270px;;
+  height: 270px;
   width: 315px;
 }
 
@@ -269,6 +270,7 @@ input[type=submit]:active {
   align-items: center;
   height: 80px;
   width: 100%;
+  bottom: 0;
 }
 
 .copyright {
