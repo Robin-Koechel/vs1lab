@@ -29,7 +29,7 @@
             <form id="tag-form" action="/tagging" method="post">
 
                 <fieldset>
-                    <legend>Add a new  GeoTag</legend>
+                    <legend class="tagging_legend">Add a new  GeoTag</legend>
                     
                     <label for="tagging_latitude">Latitude:</label>
                     <input id="tagging_latitude" type="text" pattern="\d.\d+" readonly placeholder="49.1253324">
@@ -58,9 +58,9 @@
             <form class="discovery__search" id="discoveryFilterForm" action="/discovery" method="post">
 
                 <fieldset>
-                    <legend>Discovery</legend>
+                    <legend class="discovery_legend">Discovery</legend>
 
-                    <label for="discovery_search">Search term or keyword</label>
+                    <label for="discovery_search">Search term or keyword:</label>
                     <input id="discovery_search" type="text" required placeholder="e.g Insterburg">
 
                     <input id="discovery_submit" type="submit" value="Search">
