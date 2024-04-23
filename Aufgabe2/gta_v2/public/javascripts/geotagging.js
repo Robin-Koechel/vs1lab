@@ -1,8 +1,4 @@
-// File origin: VS1LAB A2
-
-/* eslint-disable no-unused-vars */
-
-// This script is executed when the browser loads index.html.
+// File: geotagging.js
 
 // "console.log" writes to the browser's console. 
 // The console window must be opened explicitly in the browser.
@@ -10,14 +6,14 @@
 console.log("The geoTagging script is going to start...");
 
 /**
-  * A class to help using the HTML5 Geolocation API.
-  */
+ * A class to help using the HTML5 Geolocation API.
+ */
 class LocationHelper {
     // Location values for latitude and longitude are private properties to protect them from changes.
     #latitude = '';
 
     /**
-     * Getter method allows read access to privat location property.
+     * Getter method allows read access to private location property.
      */
     get latitude() {
         return this.#latitude;
@@ -28,16 +24,6 @@ class LocationHelper {
     get longitude() {
         return this.#longitude;
     }
-
-   /**
-    * Create LocationHelper instance if coordinates are known.
-    * @param {string} latitude 
-    * @param {string} longitude 
-    */
-   constructor(latitude, longitude) {
-       this.#latitude = (parseFloat(latitude)).toFixed(5);
-       this.#longitude = (parseFloat(longitude)).toFixed(5);
-   }
 
     /**
      * The 'findLocation' method requests the current location details through the geolocation API.
@@ -58,11 +44,13 @@ class LocationHelper {
         // These callbacks are given as arrow function expressions.
         geoLocationApi.getCurrentPosition((location) => {
             // Create and initialize LocationHelper object.
-            let helper = new LocationHelper(location.coords.latitude, location.coords.longitude);
+            let helper = new LocationHelper();
+            helper.#latitude = location.coords.latitude.toFixed(5);
+            helper.#longitude = location.coords.longitude.toFixed(5);
             // Pass the locationHelper object to the callback.
             callback(helper);
         }, (error) => {
-           alert(error.message)
+            alert(error.message)
         });
     }
 }
@@ -72,8 +60,8 @@ class LocationHelper {
  */
 class MapManager {
 
-    #map
-    #markers
+    #map;
+    #markers;
 
     /**
     * Initialize a Leaflet map
@@ -104,7 +92,7 @@ class MapManager {
             .bindPopup("Your Location")
             .addTo(this.#markers);
         for (const tag of tags) {
-            L.marker([tag.location.latitude,tag.location.longitude])
+            L.marker([tag.location.latitude, tag.location.longitude])
                 .bindPopup(tag.name)
                 .addTo(this.#markers);  
         }
@@ -112,13 +100,42 @@ class MapManager {
 }
 
 /**
- * TODO: 'updateLocation'
  * A function to retrieve the current location and update the page.
  * It is called once the page has been fully loaded.
  */
-// ... your code here ...
+function updateLocation(locHelper) {
+    var lat = parseFloat(locHelper.latitude);
+    var long = parseFloat(locHelper.longitude);
+
+    var latInput = document.getElementById("tagging_latitude");
+    latInput.setAttribute('value', lat);
+
+    var longInput = document.getElementById("tagging_longitude");
+    longInput.setAttribute('value', long);
+
+    console.log("Latitude:", lat);
+    console.log("Longitude:", long);
+
+    var tags = [{location: {latitude: lat, longitude: long}, name: "Your Location"}];
+
+    var mapManager = new MapManager();
+    mapManager.initMap(lat, long);
+    mapManager.updateMarkers(lat, long, tags);
+
+    const discoveryMapDiv = document.querySelector('.discovery__map');
+
+    // Check if the <div> exists
+    if (discoveryMapDiv) {
+        // Find and remove the mapView element
+        const mapViewElement = discoveryMapDiv.querySelector('#mapView');
+        if (mapViewElement) {
+            mapViewElement.remove();
+        }
+    }
+}
 
 // Wait for the page to fully load its DOM content, then call updateLocation
 document.addEventListener("DOMContentLoaded", () => {
-    alert("Please change the script 'geotagging.js'");
+    // Call findLocation with updateLocation as the callback
+    LocationHelper.findLocation(updateLocation);
 });
