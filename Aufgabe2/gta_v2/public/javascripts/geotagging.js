@@ -30,6 +30,16 @@ class LocationHelper {
     }
 
     /**
+    * Create LocationHelper instance if coordinates are known.
+    * @param {string} latitude 
+    * @param {string} longitude 
+    */
+    constructor(latitude, longitude) {
+        this.#latitude = (parseFloat(latitude)).toFixed(5);
+        this.#longitude = (parseFloat(longitude)).toFixed(5);
+    }
+
+    /**
      * The 'findLocation' method requests the current location details through the geolocation API.
      * It is a static method that should be used to obtain an instance of LocationHelper.
      * Throws an exception if the geolocation API is not available.
@@ -63,7 +73,10 @@ class LocationHelper {
  * A class to help using the MapQuest map service.
  */
 class MapManager {
+    
     #apiKey = '';
+    #map;
+    #markers;
 
     /**
      * Create a new MapManager instance.
@@ -95,16 +108,76 @@ class MapManager {
 
         return mapQuestUrl;
     }
+
+    /**
+    * Initialize a Leaflet map
+    * @param {number} latitude The map center latitude
+    * @param {number} longitude The map center longitude
+    * @param {number} zoom The map zoom, defaults to 18
+    */
+    initMap(latitude, longitude, zoom = 18) {
+        // set up dynamic Leaflet map
+        this.#map = L.map('map').setView([latitude, longitude], zoom);
+        var mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+        L.tileLayer(
+            'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; ' + mapLink + ' Contributors'}).addTo(this.#map);
+        this.#markers = L.layerGroup().addTo(this.#map);
+    }
+
+    /**
+    * Update the Markers of a Leaflet map
+    * @param {number} latitude The map center latitude
+    * @param {number} longitude The map center longitude
+    * @param {{latitude, longitude, name}[]} tags The map tags, defaults to just the current location
+    */
+    updateMarkers(latitude, longitude, tags = []) {
+        // delete all markers
+        this.#markers.clearLayers();
+        L.marker([latitude, longitude])
+            .bindPopup("Your Location")
+            .addTo(this.#markers);
+        for (const tag of tags) {
+            L.marker([tag.location.latitude,tag.location.longitude])
+                .bindPopup(tag.name)
+                .addTo(this.#markers);  
+        }
+    }
+        
 }
 
 /**
- * TODO: 'updateLocation'
  * A function to retrieve the current location and update the page.
  * It is called once the page has been fully loaded.
  */
-// ... your code here ...
+function updateLocation(locationHelper) {
+    // Update the location and write it into the field
+    var lat = locationHelper.latitude;
+    var long = locationHelper.longitude;
+
+    var latVal = document.getElementById("tagging_latitude");
+    latVal.setAttribute("value", lat);
+    var longVal = document.getElementById("tagging_longitude");
+    longVal.setAttribute("value", long);
+    
+    // Update the map image
+    var mapManager = new MapManager();
+    var tags = [{location: {latitude: lat, longitude: long}, name: "Your location"}];
+
+    mapManager.initMap(lat, long);
+    mapManager.updateMarkers(lat, long, tags);
+
+    const discoveryMap = document.querySelector(".discovery__map");
+
+    if (discoveryMap) {
+        const mapView = discoveryMap.querySelector("#mapView");
+        if (mapView) {
+            mapView.remove();
+        }
+    }
+}
 
 // Wait for the page to fully load its DOM content, then call updateLocation
 document.addEventListener("DOMContentLoaded", () => {
-    alert("Please change the script 'geotagging.js'");
+    LocationHelper.findLocation(updateLocation);
 });
