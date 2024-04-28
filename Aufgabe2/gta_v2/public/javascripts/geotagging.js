@@ -13,7 +13,7 @@ class LocationHelper {
     #latitude = '';
 
     /**
-     * Getter method allows read access to private location property.
+     * Getter method allows read access to privat location property.
      */
     get latitude() {
         return this.#latitude;
@@ -24,6 +24,16 @@ class LocationHelper {
     get longitude() {
         return this.#longitude;
     }
+
+   /**
+    * Create LocationHelper instance if coordinates are known.
+    * @param {string} latitude 
+    * @param {string} longitude 
+    */
+   constructor(latitude, longitude) {
+       this.#latitude = (parseFloat(latitude)).toFixed(5);
+       this.#longitude = (parseFloat(longitude)).toFixed(5);
+   }
 
     /**
      * The 'findLocation' method requests the current location details through the geolocation API.
@@ -44,13 +54,11 @@ class LocationHelper {
         // These callbacks are given as arrow function expressions.
         geoLocationApi.getCurrentPosition((location) => {
             // Create and initialize LocationHelper object.
-            let helper = new LocationHelper();
-            helper.#latitude = location.coords.latitude.toFixed(5);
-            helper.#longitude = location.coords.longitude.toFixed(5);
+            let helper = new LocationHelper(location.coords.latitude, location.coords.longitude);
             // Pass the locationHelper object to the callback.
             callback(helper);
         }, (error) => {
-            alert(error.message)
+           alert(error.message)
         });
     }
 }
@@ -60,8 +68,8 @@ class LocationHelper {
  */
 class MapManager {
 
-    #map;
-    #markers;
+    #map
+    #markers
 
     /**
     * Initialize a Leaflet map
@@ -92,7 +100,7 @@ class MapManager {
             .bindPopup("Your Location")
             .addTo(this.#markers);
         for (const tag of tags) {
-            L.marker([tag.location.latitude, tag.location.longitude])
+            L.marker([tag.location.latitude,tag.location.longitude])
                 .bindPopup(tag.name)
                 .addTo(this.#markers);  
         }
@@ -111,6 +119,12 @@ function updateLocation(locHelper) {
     latInput.setAttribute('value', lat);
 
     var longInput = document.getElementById("tagging_longitude");
+    longInput.setAttribute('value', long);
+
+    var latInput = document.getElementById("discovery_latitude");
+    latInput.setAttribute('value', lat);
+
+    var longInput = document.getElementById("discovery_longitude");
     longInput.setAttribute('value', long);
 
     console.log("Latitude:", lat);
