@@ -23,10 +23,35 @@
  * - The proximity constrained is the same as for 'getNearbyGeoTags'.
  * - Keyword matching should include partial matches from name or hashtag fields. 
  */
-class InMemoryGeoTagStore{
+class InMemoryGeoTagStore {
+    constructor() {
+        // Private array to store geotags
+        this.geotags = [];
+    }
 
-    // TODO: ... your code here ...
+    addGeoTag(geoTag) {
+        this.geotags.push(geoTag);
+    }
 
+    removeGeoTag(name) {
+        this.geotags = this.geotags.filter(tag => tag.name !== name);
+    }
+
+    getNearbyGeoTags(lat, long, radius){
+        return this._geotags.filter(tag => {
+            const distance = Math.sqrt(Math.pow(lat - tag.latitude, 2) + Math.pow(long - tag.longitude, 2));
+            return distance <= radius;
+        });
+    }
+
+    searchNearbyGeoTags(){
+                const nearbyTags = this.getNearbyGeoTags(lat, long, radius);
+
+                return nearbyTags.filter(tag => {
+                    return tag.name.includes(keyword) || tag.tag.includes(keyword);
+                });
+    }
 }
+
 
 module.exports = InMemoryGeoTagStore
