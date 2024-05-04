@@ -155,11 +155,16 @@ function updateLocation(locationHelper) {
     var lat = locationHelper.latitude;
     var long = locationHelper.longitude;
 
-    var latVal = document.getElementById("tagging_latitude");
-    latVal.setAttribute("value", lat);
-    var longVal = document.getElementById("tagging_longitude");
-    longVal.setAttribute("value", long);
-    
+    var taggingLatVal = document.getElementById("tagging_latitude");
+    taggingLatVal.setAttribute("value", lat);
+    var taggingLongVal = document.getElementById("tagging_longitude");
+    taggingLongVal.setAttribute("value", long);
+
+    var discoveryLatVal = document.getElementById("discovery_latitude");
+    discoveryLatVal.setAttribute("value", lat); 
+    var discoveryLongVal = document.getElementById("discovery_longitude");
+    discoveryLongVal.setAttribute("value", long);
+
     // Update the map image
     var mapManager = new MapManager();
     var tags = [{location: {latitude: lat, longitude: long}, name: "Your location"}];
