@@ -24,9 +24,10 @@
  * - Keyword matching should include partial matches from name or hashtag fields. 
  */
 class InMemoryGeoTagStore {
+    #geotags;
     constructor() {
         // Private array to store geotags
-        this.geotags = [];
+        this.#geotags = [];
     }
 
     addGeoTag(geoTag) {
@@ -45,11 +46,11 @@ class InMemoryGeoTagStore {
     }
 
     searchNearbyGeoTags(){
-                const nearbyTags = this.getNearbyGeoTags(lat, long, radius);
+        const nearbyTags = this.getNearbyGeoTags(lat, long, radius);
 
-                return nearbyTags.filter(tag => {
-                    return tag.name.includes(keyword) || tag.tag.includes(keyword);
-                });
+        return nearbyTags.filter(tag => {
+            return tag.name.includes(keyword) || tag.tag.includes(keyword);
+        });
     }
 }
 
