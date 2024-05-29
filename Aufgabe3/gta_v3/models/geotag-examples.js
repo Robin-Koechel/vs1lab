@@ -34,9 +34,8 @@ class GeoTagExamples {
         ];
     }
 
-    populateStore(){
-        const store = new InMemoryGeoTagStore();
-        this.tagList().forEach(element => {
+    populateStore(store) {
+        GeoTagExamples.tagList.forEach(element => {
             store.addGeoTag(new GeoTag(element[1], element[2], element[0], element[3]));
         });
         return store;

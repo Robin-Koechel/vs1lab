@@ -30,6 +30,12 @@ const GeoTag = require('../models/geotag');
  */
 // eslint-disable-next-line no-unused-vars
 const GeoTagStore = require('../models/geotag-store');
+const store = new GeoTagStore();
+
+const GeoTagExamples = require('../models/geotag-examples');
+const examples = new GeoTagExamples();
+examples.populateStore(store);
+
 
 /**
  * Route '/' for HTTP 'GET' requests.
@@ -42,7 +48,11 @@ const GeoTagStore = require('../models/geotag-store');
 
 // TODO: extend the following route example if necessary
 router.get('/', (req, res) => {
-  res.render('index', { taglist: [] })
+  res.render('index', { 
+    taglist: store.getGeoTags(), // Example default coordinates
+    currentLatitude: '',
+    currentLongitude: ''
+  });
 });
 
 /**
@@ -60,7 +70,18 @@ router.get('/', (req, res) => {
  * by radius around a given location.
  */
 
-// TODO: ... your code here ...
+router.post('/tagging', (req, res) => {
+  const { tagging_latitude, tagging_longitude, tagging_name, tagging_tag } = req.body;
+  const geoTag = new GeoTag(tagging_latitude, tagging_longitude, tagging_name, tagging_tag);
+
+  store.addGeoTag(geoTag);
+
+  res.render('index', { 
+    taglist: store.getNearbyGeoTags(geoTag.latitude, geoTag.longitude, 10),
+    currentLatitude: geoTag.latitude,
+    currentLongitude: geoTag.longitude
+  });
+});
 
 /**
  * Route '/discovery' for HTTP 'POST' requests.
@@ -78,6 +99,19 @@ router.get('/', (req, res) => {
  * by radius and keyword.
  */
 
-// TODO: ... your code here ...
+router.post('/discovery', (req, res) => {
+  const { discovery_search, discovery_latitude, discovery_longitude } = req.body;
+
+  // Get nearby GeoTags based on the search term and current location
+  const nearbyTags = store.getNearbyGeoTags(discovery_latitude, discovery_longitude, 10)
+    .filter(tag => tag.name.includes(discovery_search) || tag.hashtag.includes(discovery_search));
+
+  res.render('index', { 
+    taglist: nearbyTags,
+    currentLatitude: discovery_latitude,
+    currentLongitude: discovery_longitude
+  });
+});
+
 
 module.exports = router;

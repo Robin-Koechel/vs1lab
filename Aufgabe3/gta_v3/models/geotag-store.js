@@ -1,10 +1,3 @@
-// File origin: VS1LAB A3
-
-/**
- * This script is a template for exercise VS1lab/Aufgabe3
- * Complete all TODOs in the code documentation.
- */
-
 /**
  * A class for in-memory-storage of geotags
  * 
@@ -31,28 +24,30 @@ class InMemoryGeoTagStore {
     }
 
     addGeoTag(geoTag) {
-        this.geotags.push(geoTag);
+        this.#geotags.push(geoTag);
     }
 
     removeGeoTag(name) {
-        this.geotags = this.geotags.filter(tag => tag.name !== name);
+        this.#geotags = this.#geotags.filter(tag => tag.name !== name);
     }
 
     getNearbyGeoTags(lat, long, radius){
-        return this._geotags.filter(tag => {
+        return this.#geotags.filter(tag => {
             const distance = Math.sqrt(Math.pow(lat - tag.latitude, 2) + Math.pow(long - tag.longitude, 2));
             return distance <= radius;
         });
     }
 
-    searchNearbyGeoTags(){
+    searchNearbyGeoTags(lat, long, radius, keyword) {
         const nearbyTags = this.getNearbyGeoTags(lat, long, radius);
-
         return nearbyTags.filter(tag => {
-            return tag.name.includes(keyword) || tag.tag.includes(keyword);
+            return tag.name.includes(keyword) || tag.hashtag.includes(keyword);
         });
+    }
+
+    getGeoTags(){
+        return this.#geotags;
     }
 }
 
-
-module.exports = InMemoryGeoTagStore
+module.exports = InMemoryGeoTagStore;
