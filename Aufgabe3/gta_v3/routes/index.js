@@ -22,6 +22,8 @@ const router = express.Router();
 // eslint-disable-next-line no-unused-vars
 const GeoTag = require('../models/geotag');
 
+const MapManager = require('../public/javascripts/map-manager')
+
 /**
  * The module "geotag-store" exports a class GeoTagStore. 
  * It provides an in-memory store for geotag objects.
@@ -50,8 +52,8 @@ examples.populateStore(store);
 router.get('/', (req, res) => {
   res.render('index', { 
     taglist: store.getGeoTags(), // Example default coordinates
-    currentLatitude: '',
-    currentLongitude: ''
+    currentLatitude: '49',
+    currentLongitude: '8'
   });
 });
 
@@ -75,11 +77,13 @@ router.post('/tagging', (req, res) => {
   const geoTag = new GeoTag(tagging_latitude, tagging_longitude, tagging_name, tagging_tag);
 
   store.addGeoTag(geoTag);
+  const tags = store.getGeoTags();
+
 
   res.render('index', { 
-    taglist: store.getNearbyGeoTags(geoTag.latitude, geoTag.longitude, 10),
-    currentLatitude: geoTag.latitude,
-    currentLongitude: geoTag.longitude
+    taglist: tags,
+    currentLatitude: tagging_latitude,
+    currentLongitude: tagging_longitude
   });
 });
 
@@ -102,15 +106,28 @@ router.post('/tagging', (req, res) => {
 router.post('/discovery', (req, res) => {
   const { discovery_search, discovery_latitude, discovery_longitude } = req.body;
 
+  console.log(discovery_search)
   // Get nearby GeoTags based on the search term and current location
-  const nearbyTags = store.getNearbyGeoTags(discovery_latitude, discovery_longitude, 10)
-    .filter(tag => tag.name.includes(discovery_search) || tag.hashtag.includes(discovery_search));
+  const searchedTag = store.searchGeoTagByKeyword(discovery_search);
 
-  res.render('index', { 
-    taglist: nearbyTags,
-    currentLatitude: discovery_latitude,
-    currentLongitude: discovery_longitude
-  });
+  console.log(searchedTag);
+
+  if(searchedTag != null){
+    console.log(searchedTag);
+    const surroundingTags = store.searchNearbyGeoTags(searchedTag[0].latitude, searchedTag[0].longitude, 10);
+
+    res.render('index', { 
+      taglist: surroundingTags,
+      currentLatitude: searchedTag[0].location.latitude,
+      currentLongitude: searchedTag[0].location.longitude
+    });
+  }else{
+    res.render('index', { 
+      taglist: store.getGeoTags(),
+      currentLatitude: discovery_latitude,
+      currentLongitude: discovery_longitude
+    });
+  }
 });
 
 

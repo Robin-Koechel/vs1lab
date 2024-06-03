@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css' crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js' crossorigin=""></script>
+    <link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css' crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoTagApp</title>
     <link rel="stylesheet" href="/stylesheets/style.css" />
 </head>
+
 <body>
     <header class="header">
         <img src="/images/location.png" class="header__image" alt="an image of a map and location">
@@ -24,9 +26,11 @@
                 <fieldset>
                     <legend class="tagging_legend">Add a new GeoTag</legend>
                     <label for="tagging_latitude">Latitude:</label>
-                    <input id="tagging_latitude" name="tagging_latitude" type="text" readonly value="<%= currentLatitude %>">
+                    <input id="tagging_latitude" name="tagging_latitude" type="text" readonly
+                        value="<%= currentLatitude %>">
                     <label for="tagging_longitude">Longitude:</label>
-                    <input id="tagging_longitude" name="tagging_longitude" type="text" readonly value="<%= currentLongitude %>">
+                    <input id="tagging_longitude" name="tagging_longitude" type="text" readonly
+                        value="<%= currentLongitude %>">
                     <label for="tagging_name">Name:</label>
                     <input id="tagging_name" name="tagging_name" type="text" required>
                     <label for="tagging_tag">Hashtag:</label>
@@ -43,17 +47,21 @@
                     <legend class="discovery_legend">Discovery</legend>
                     <label for="discovery_search">Search term or keyword:</label>
                     <input id="discovery_search" name="discovery_search" type="text" required>
-                    <input id="discovery_latitude" name="discovery_latitude" type="hidden" value="<%= currentLatitude %>">
-                    <input id="discovery_longitude" name="discovery_longitude" type="hidden" value="<%= currentLongitude %>">
+                    <input id="discovery_latitude" name="discovery_latitude" type="hidden"
+                        value="<%= currentLatitude %>">
+                    <input id="discovery_longitude" name="discovery_longitude" type="hidden"
+                        value="<%= currentLongitude %>">
                     <input type="submit" value="Search">
                 </fieldset>
             </form>
             <div class="discovery__wrapper">
                 <div class="discovery__taglist">
                     <ul class="discovery__results" id="discoveryResults">
-                        <% if (taglist !== undefined) taglist.forEach(function(gtag) { %>
-                            <li><%= gtag.name %> ( <%= gtag.latitude %>,<%= gtag.longitude %>) <%= gtag.hashtag %> </li>
-                        <% }); %>
+                        <% if (taglist !==undefined) taglist.forEach(function(gtag) { %>
+                            <li>
+                                <%= gtag.name %> ( <%= gtag.latitude %>,<%= gtag.longitude %>) <%= gtag.hashtag %>
+                            </li>
+                            <% }); %>
                     </ul>
                 </div>
                 <div class="discovery__map" id="map" data-tags='<%= JSON.stringify(taglist) %>'>
@@ -68,8 +76,22 @@
         <span>(c) 2021/22 HKA_IWI_VSYS</span>
     </footer>
 
-    <script src="/javascripts/map-manager.js"></script>
     <script src="/javascripts/location-helper.js"></script>
+    <script src="/javascripts/map-manager.js"></script>
     <script src="/javascripts/geotagging.js"></script>
+    <script>
+        // Wait for the page to fully load its DOM content, then call updateLocation
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            var latInput = document.getElementById("tagging_latitude");
+
+            if (latInput.getAttribute('value') == 49) {
+                // Call findLocation with updateLocation as the callback
+                LocationHelper.findLocation(updateLocation);
+            }
+        });
+
+    </script>
 </body>
+
 </html>

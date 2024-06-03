@@ -14,44 +14,38 @@ function updateLocation(locHelper) {
     var latInput = document.getElementById("tagging_latitude");
     var longInput = document.getElementById("tagging_longitude");
 
-    if (latInput.getAttribute('value').length == 0) {
-        var lat = parseFloat(locHelper.latitude);
-        var long = parseFloat(locHelper.longitude);
+    
+    var lat = parseFloat(locHelper.latitude);
+    var long = parseFloat(locHelper.longitude);
 
 
-        latInput.setAttribute('value', lat);
-        longInput.setAttribute('value', long);
+    latInput.setAttribute('value', lat);
+    longInput.setAttribute('value', long);
 
-        var latInput = document.getElementById("discovery_latitude");
-        latInput.setAttribute('value', lat);
+    var latInput = document.getElementById("discovery_latitude");
+    latInput.setAttribute('value', lat);
 
-        var longInput = document.getElementById("discovery_longitude");
-        longInput.setAttribute('value', long);
+    var longInput = document.getElementById("discovery_longitude");
+    longInput.setAttribute('value', long);
 
-        console.log("Latitude:", lat);
-        console.log("Longitude:", long);
+    console.log("Latitude:", lat);
+    console.log("Longitude:", long);
 
-        var tags = [{ location: { latitude: lat, longitude: long }, name: "Your Location" }];
+    var tags = [{  location:{latitude: lat, longitude: long} , name: "Your Location" }];
 
-        var mapManager = new MapManager();
-        mapManager.initMap(lat, long);
-        mapManager.updateMarkers(lat, long, tags);
+    var mapManager = new MapManager();
+    mapManager.initMap(lat, long);
+    mapManager.updateMarkers(lat, long, tags);
 
-        const discoveryMapDiv = document.querySelector('.discovery__map');
-
-        // Check if the <div> exists
-        if (discoveryMapDiv) {
-            // Find and remove the mapView element
-            const mapViewElement = discoveryMapDiv.querySelector('#mapView');
-            if (mapViewElement) {
-                mapViewElement.remove();
-            }
+    const discoveryMapDiv = document.querySelector('.discovery__map');
+    
+    // Check if the <div> exists
+    if (discoveryMapDiv) {
+        // Find and remove the mapView element
+        const mapViewElement = discoveryMapDiv.querySelector('#mapView');
+        if (mapViewElement) {
+            mapViewElement.remove();
         }
     }
+    
 }
-
-// Wait for the page to fully load its DOM content, then call updateLocation
-document.addEventListener("DOMContentLoaded", () => {
-    // Call findLocation with updateLocation as the callback
-    LocationHelper.findLocation(updateLocation);
-});

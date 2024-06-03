@@ -11,26 +11,25 @@
  */
 class GeoTag {
     constructor(latitude, longitude, name, hashtag) {
-        this._latitude = latitude; // Use setter methods to set properties
-        this._longitude = longitude;
+        this._location = { lat: latitude, long: longitude }; // Store latitude and longitude in a location object
         this._name = name;
         this._hashtag = hashtag;
     }
 
     get latitude() {
-        return this._latitude;
+        return this._location.lat;
     }
 
     set latitude(latitude) {
-        this._latitude = latitude;
+        this._location.lat = latitude;
     }
 
     get longitude() {
-        return this._longitude;
+        return this._location.long;
     }
 
     set longitude(longitude) {
-        this._longitude = longitude;
+        this._location.long = longitude;
     }
 
     get name() {
@@ -48,7 +47,14 @@ class GeoTag {
     set hashtag(hashtag) {
         this._hashtag = hashtag;
     }
+
+    get location() {
+        return this._location;
+    }
+
+    set location({ lat, long }) {
+        this._location = { lat, long };
+    }
 }
 
 module.exports = GeoTag;
-
