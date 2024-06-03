@@ -25,8 +25,38 @@
  */
 class InMemoryGeoTagStore{
 
-    // TODO: ... your code here ...
+    #store;
 
+    constructor() {
+        this.#store = [];
+    }
+
+
+    addGeoTag(tag) {
+        this.#store.push(tag);
+    }
+
+    removeGeoTag(name) {
+        this.#store = this.#store.filter(tag => tag.name !== name);
+    }
+
+    getNearbyGeoTags(lat, long, radius) {
+        return this.#store.filter(tag => {
+            const distance = Math.sqrt(Math.pow(lat - tag.location.latitude, 2) + Math.pow(long - tag.location.longitude, 2));
+            return distance <= radius;
+        });
+    }
+    
+    searchNearbyGeoTags(lat, long, radius, keyword) {
+        const nearbyTags = this.getNearbyGeoTags(lat, long, radius);
+        return nearbyTags.filter(tag => {
+            return tag.name.includes(keyword) || tag.hashtag.includes(keyword);
+        });
+    }
+
+    get geotags() {
+        return this.#store;
+    }
 }
 
 module.exports = InMemoryGeoTagStore

@@ -46,12 +46,15 @@
     * @param {{latitude, longitude, name}[]} tags The map tags, defaults to just the current location
     */
     updateMarkers(latitude, longitude, tags = []) {
+        const geotags = tags.forEach(element => {
+            JSON.parse(element);
+        });
         // delete all markers
         this.#markers.clearLayers();
         L.marker([latitude, longitude], { icon: this.#defaultIcon })
             .bindPopup("Your Location")
             .addTo(this.#markers);
-        for (const tag of tags) {
+        for (const tag of geotags) {
             L.marker([tag.location.latitude,tag.location.longitude], { icon: this.#defaultIcon })
                 .bindPopup(tag.name)
                 .addTo(this.#markers);  
