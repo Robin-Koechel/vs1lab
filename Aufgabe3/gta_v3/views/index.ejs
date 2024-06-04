@@ -35,7 +35,7 @@
                     <input id="tagging_name" name="tagging_name" type="text" required>
                     <label for="tagging_tag">Hashtag:</label>
                     <input id="tagging_tag" name="tagging_tag" type="text" required>
-                    <input type="submit" value="Add Tag">
+                    <input id="tagging_button" type="submit" value="Add Tag">
                 </fieldset>
             </form>
         </section>
@@ -51,7 +51,7 @@
                         value="<%= currentLatitude %>">
                     <input id="discovery_longitude" name="discovery_longitude" type="hidden"
                         value="<%= currentLongitude %>">
-                    <input type="submit" value="Search">
+                    <input id="discovery_button" type="submit" value="Search">
                 </fieldset>
             </form>
             <div class="discovery__wrapper">
@@ -79,19 +79,7 @@
     <script src="/javascripts/location-helper.js"></script>
     <script src="/javascripts/map-manager.js"></script>
     <script src="/javascripts/geotagging.js"></script>
-    <script>
-        // Wait for the page to fully load its DOM content, then call updateLocation
-        document.addEventListener("DOMContentLoaded", () => {
-            
-            var latInput = document.getElementById("tagging_latitude");
 
-            if (latInput.getAttribute('value') == 49) {
-                // Call findLocation with updateLocation as the callback
-                LocationHelper.findLocation(updateLocation);
-            }
-        });
-
-    </script>
 </body>
 
 </html>

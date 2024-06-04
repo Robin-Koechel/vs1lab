@@ -77,11 +77,9 @@ router.post('/tagging', (req, res) => {
   const geoTag = new GeoTag(tagging_latitude, tagging_longitude, tagging_name, tagging_tag);
 
   store.addGeoTag(geoTag);
-  const tags = store.getGeoTags();
-
 
   res.render('index', { 
-    taglist: tags,
+    taglist: store.getGeoTags(),
     currentLatitude: tagging_latitude,
     currentLongitude: tagging_longitude
   });
@@ -105,29 +103,14 @@ router.post('/tagging', (req, res) => {
 
 router.post('/discovery', (req, res) => {
   const { discovery_search, discovery_latitude, discovery_longitude } = req.body;
+  const tags = store.searchNearbyGeoTags(discovery_latitude, discovery_longitude, 1000, discovery_search);
+  console.log(tags);
+  res.render('index', { 
+    taglist: tags,
+    currentLatitude: discovery_latitude,
+    currentLongitude: discovery_longitude
+  });
 
-  console.log(discovery_search)
-  // Get nearby GeoTags based on the search term and current location
-  const searchedTag = store.searchGeoTagByKeyword(discovery_search);
-
-  console.log(searchedTag);
-
-  if(searchedTag != null){
-    console.log(searchedTag);
-    const surroundingTags = store.searchNearbyGeoTags(searchedTag[0].latitude, searchedTag[0].longitude, 10);
-
-    res.render('index', { 
-      taglist: surroundingTags,
-      currentLatitude: searchedTag[0].location.latitude,
-      currentLongitude: searchedTag[0].location.longitude
-    });
-  }else{
-    res.render('index', { 
-      taglist: store.getGeoTags(),
-      currentLatitude: discovery_latitude,
-      currentLongitude: discovery_longitude
-    });
-  }
 });
 
 

@@ -33,7 +33,7 @@ class InMemoryGeoTagStore {
 
     getNearbyGeoTags(lat, long, radius){
         return this.#geotags.filter(tag => {
-            const distance = Math.sqrt(Math.pow(lat - tag.location.latitude, 2) + Math.pow(long - tag.location.longitude, 2));
+            const distance = Math.sqrt(Math.pow(lat - tag._location.lat, 2) + Math.pow(long - tag._location.long, 2));
             return distance <= radius;
         });
     }
@@ -41,12 +41,6 @@ class InMemoryGeoTagStore {
     searchNearbyGeoTags(lat, long, radius, keyword) {
         const nearbyTags = this.getNearbyGeoTags(lat, long, radius);
         return nearbyTags.filter(tag => {
-            return tag.name.includes(keyword) || tag.hashtag.includes(keyword);
-        });
-    }
-
-    searchGeoTagByKeyword(keyword){
-        return this.#geotags.filter(tag => {
             return tag.name.includes(keyword) || tag.hashtag.includes(keyword);
         });
     }
