@@ -154,17 +154,17 @@ a {
   border-width: 1px;
 }
 
-#tagging_submit, #discovery_submit {
+#tagging_button, #discovery_button {
   font-weight: bold;
   cursor: pointer;
   transition: opacity 0.2s;
 }
 
-#tagging_submit:hover, #discovery_submit:hover {
+#tagging_button:hover, #discovery_button:hover {
   opacity: 0.8;
 }
 
-#tagging_submit:active, #discovery_submit:active {
+#tagging_button:active, #discovery_button:active {
   opacity: 0.6;
 }
 
