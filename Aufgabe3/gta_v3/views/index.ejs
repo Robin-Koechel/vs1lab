@@ -26,15 +26,15 @@
                 <fieldset>
                     <legend class="tagging_legend">Add a new GeoTag</legend>
                     <label for="tagging_latitude">Latitude:</label>
-                    <input id="tagging_latitude" name="tagging_latitude" type="text" readonly
+                    <input id="tagging_latitude" placeholder="49.1253324" name="tagging_latitude" type="text" readonly
                         value="<%= currentLatitude %>">
                     <label for="tagging_longitude">Longitude:</label>
-                    <input id="tagging_longitude" name="tagging_longitude" type="text" readonly
+                    <input id="tagging_longitude" placeholder="8.4" name="tagging_longitude" type="text" readonly
                         value="<%= currentLongitude %>">
                     <label for="tagging_name">Name:</label>
-                    <input id="tagging_name" name="tagging_name" type="text" required>
+                    <input id="tagging_name" placeholder="Bib" name="tagging_name" type="text" required>
                     <label for="tagging_tag">Hashtag:</label>
-                    <input id="tagging_tag" name="tagging_tag" type="text" required>
+                    <input id="tagging_tag" placeholder="#bib" name="tagging_tag" type="text" required>
                     <input id="tagging_button" type="submit" value="Add Tag">
                 </fieldset>
             </form>
