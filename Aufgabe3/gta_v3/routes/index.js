@@ -81,7 +81,7 @@ router.post('/tagging', (req, res) => {
   res.render('index', { 
     taglist: store.getGeoTags(),
     currentLatitude: tagging_latitude,
-    currentLongitude: tagging_longitude
+    currentLongitude: tagging_longitude 
   });
 });
 

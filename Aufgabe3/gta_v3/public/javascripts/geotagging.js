@@ -10,25 +10,30 @@ console.log("The geoTagging script is going to start...");
  * A function to retrieve the current location and update the page.
  * It is called once the page has been fully loaded.
  */
-function updateLocation(locHelper) {
+function updateLocation() {
     var latInput = document.getElementById("tagging_latitude");
     var longInput = document.getElementById("tagging_longitude");
-    
-    var lat = parseFloat(locHelper.latitude);
-    var long = parseFloat(locHelper.longitude);
+    var latInputDiscovery = document.getElementById("discovery_latitude");
+    var longInputDiscovery = document.getElementById("discovery_longitude");
+    var lat = latInput.value ? parseFloat(latInput.value) : null;
+    var long = longInput.value ? parseFloat(longInput.value) : null;
 
-    latInput.setAttribute('value', lat);
-    longInput.setAttribute('value', long);
+    if (lat !== null && long !== null) {
+        updateMap(lat, long);
+    } else {
+        LocationHelper.findLocation((locHelper) => {
+            var lat = parseFloat(locHelper.latitude);
+            var long = parseFloat(locHelper.longitude);
+            latInput.setAttribute('value', lat);
+            longInput.setAttribute('value', long);
+            latInputDiscovery.setAttribute('value', lat);
+            longInputDiscovery.setAttribute('value', long);
+            updateMap(lat, long);
+        });
+    }
+}
 
-    var latInput = document.getElementById("discovery_latitude");
-    latInput.setAttribute('value', lat);
-
-    var longInput = document.getElementById("discovery_longitude");
-    longInput.setAttribute('value', long);
-
-    console.log("Latitude:", lat);
-    console.log("Longitude:", long);
-
+function updateMap(lat, long) {
     taglist_json = document.getElementById("map").getAttribute("data-tags");
     var tags = JSON.parse(taglist_json);
 
@@ -38,26 +43,17 @@ function updateLocation(locHelper) {
 
     const discoveryMapDiv = document.querySelector('.discovery__map');
 
-    // Check if the <div> exists
     if (discoveryMapDiv) {
-        // Find and remove the mapView element
         const mapViewElement = discoveryMapDiv.querySelector('#mapView');
         if (mapViewElement) {
             mapViewElement.remove();
         }
     }
 }
+
 // Wait for the page to fully load its DOM content, then call updateLocation
 document.addEventListener("DOMContentLoaded", () => {
-
-    // var latInput = document.getElementById("tagging_latitude");
-    LocationHelper.findLocation(updateLocation);
-    /*
-    if (latInput.getAttribute('value') == 49) {
-        // Call findLocation with updateLocation as the callback
-        LocationHelper.findLocation(updateLocation);
-    }
-    */
+    updateLocation();
 });
 /*
 var btnTagging = document.getElementById("tagging_button");
