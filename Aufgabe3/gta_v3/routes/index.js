@@ -52,8 +52,8 @@ examples.populateStore(store);
 router.get('/', (req, res) => {
   res.render('index', { 
     taglist: store.getGeoTags(), // Example default coordinates
-    currentLatitude: '49',
-    currentLongitude: '8'
+    currentLatitude: '',
+    currentLongitude: '' // The position of the user initially
   });
 });
 

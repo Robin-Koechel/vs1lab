@@ -13,11 +13,9 @@ console.log("The geoTagging script is going to start...");
 function updateLocation(locHelper) {
     var latInput = document.getElementById("tagging_latitude");
     var longInput = document.getElementById("tagging_longitude");
-
-
+    
     var lat = parseFloat(locHelper.latitude);
     var long = parseFloat(locHelper.longitude);
-
 
     latInput.setAttribute('value', lat);
     longInput.setAttribute('value', long);
@@ -48,19 +46,20 @@ function updateLocation(locHelper) {
             mapViewElement.remove();
         }
     }
-
 }
 // Wait for the page to fully load its DOM content, then call updateLocation
 document.addEventListener("DOMContentLoaded", () => {
 
-    var latInput = document.getElementById("tagging_latitude");
-
+    // var latInput = document.getElementById("tagging_latitude");
+    LocationHelper.findLocation(updateLocation);
+    /*
     if (latInput.getAttribute('value') == 49) {
         // Call findLocation with updateLocation as the callback
         LocationHelper.findLocation(updateLocation);
     }
+    */
 });
-
+/*
 var btnTagging = document.getElementById("tagging_button");
 var btnDiscovery = document.getElementById("discovery_button");
 
@@ -85,3 +84,4 @@ function updateMap() {
     mapManager.updateMarkers(latInput, longInput, tags);
 
 }
+*/
