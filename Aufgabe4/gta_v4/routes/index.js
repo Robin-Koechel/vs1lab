@@ -35,6 +35,7 @@ const GeoTagStore = require('../models/geotag-store');
 const store = new GeoTagStore();
 
 const GeoTagExamples = require('../models/geotag-examples');
+const app = require('../app');
 const examples = new GeoTagExamples();
 examples.populateStore(store);
 
@@ -49,11 +50,11 @@ examples.populateStore(store);
 
 // TODO: extend the following route example if necessary
 router.get('/', (req, res) => {
-  res.render('index', { 
-    taglist: store.getGeoTags(), // Example default coordinates
-    currentLatitude: '',
-    currentLongitude: '' // The position of the user initially
-  });
+	res.render('index', {
+		taglist: store.getGeoTags(), // Example default coordinates
+		currentLatitude: '',
+		currentLongitude: '' // The position of the user initially
+	});
 });
 
 /**
@@ -72,16 +73,16 @@ router.get('/', (req, res) => {
  */
 
 router.post('/tagging', (req, res) => {
-  const { tagging_latitude, tagging_longitude, tagging_name, tagging_tag } = req.body;
-  const geoTag = new GeoTag(tagging_latitude, tagging_longitude, tagging_name, tagging_tag);
+	const { tagging_latitude, tagging_longitude, tagging_name, tagging_tag } = req.body;
+	const geoTag = new GeoTag(tagging_latitude, tagging_longitude, tagging_name, tagging_tag);
 
-  store.addGeoTag(geoTag);
+	store.addGeoTag(geoTag);
 
-  res.render('index', { 
-    taglist: store.getGeoTags(),
-    currentLatitude: tagging_latitude,
-    currentLongitude: tagging_longitude 
-  });
+	res.render('index', {
+		taglist: store.getGeoTags(),
+		currentLatitude: tagging_latitude,
+		currentLongitude: tagging_longitude
+	});
 });
 
 /**
@@ -101,14 +102,14 @@ router.post('/tagging', (req, res) => {
  */
 
 router.post('/discovery', (req, res) => {
-  const { discovery_search, discovery_latitude, discovery_longitude } = req.body;
-  const tags = store.searchNearbyGeoTags(discovery_latitude, discovery_longitude, 1000, discovery_search);
-  console.log(tags);
-  res.render('index', { 
-    taglist: tags,
-    currentLatitude: discovery_latitude,
-    currentLongitude: discovery_longitude
-  });
+	const { discovery_search, discovery_latitude, discovery_longitude } = req.body;
+	const tags = store.searchNearbyGeoTags(discovery_latitude, discovery_longitude, 1000, discovery_search);
+	console.log(tags);
+	res.render('index', {
+		taglist: tags,
+		currentLatitude: discovery_latitude,
+		currentLongitude: discovery_longitude
+	});
 });
 
 // API routes (A4)
@@ -126,6 +127,29 @@ router.post('/discovery', (req, res) => {
  */
 
 // TODO: ... your code here ...
+router.get('/api/geotags', (req, res) => {
+	const { discovery_search = '', discovery_latitude = 0, discovery_longitude = 0 } = req.query;
+	let tags = store.getGeoTags();
+
+	// Filter by search term if provided
+	if (discovery_search) {
+		tags = tags.filter(tag => {
+			return tag.name.includes(discovery_search) || tag.hashtag.includes(discovery_search);
+		});
+	}
+
+	// Filter by proximity if coordinates are provided
+	if (discovery_latitude && discovery_longitude) {
+		tags = tags.filter(tag => {
+			const distance = Math.sqrt(Math.pow(discovery_latitude - tag.latitude, 2) + Math.pow(discovery_longitude - tag.longitude, 2));
+			return distance <= 100; // Assuming 100 is the desired radius
+		});
+	}
+
+	res.status(200).send({
+		taglist: tags
+	});
+});
 
 
 /**
@@ -140,7 +164,21 @@ router.post('/discovery', (req, res) => {
  */
 
 // TODO: ... your code here ...
-
+router.post('/api/geotags', (req, res) => {
+	const { latitude, longitude, name, hashtag } = req.body;
+    
+    
+    if (latitude == null || longitude == null || !name || !hashtag) {
+      return res.status(400).send('Missing required fields');
+    }
+    
+    const newGeoTag = new GeoTag(latitude, longitude, name, hashtag);
+    store.addGeoTag(newGeoTag);
+    
+    res.setHeader('Location', `/api/geotags/${newGeoTag.id}`);
+    
+    res.status(201).json(newGeoTag);
+});
 
 /**
  * Route '/api/geotags/:id' for HTTP 'GET' requests.
@@ -153,6 +191,23 @@ router.post('/discovery', (req, res) => {
  */
 
 // TODO: ... your code here ...
+
+router.get('/api/geotags/:id', (req, res) => {
+	const { id } = req.params; // Extract the id from req.params
+  
+	if (id == null) {
+	  return res.status(400).send('Missing required fields');
+	}
+  
+	const tag = store.getTagByID(id);
+  
+	if (!tag) {
+	  return res.status(404).send('GeoTag not found');
+	}
+  
+	res.status(200).json(tag);
+  });
+  
 
 
 /**
@@ -170,7 +225,29 @@ router.post('/discovery', (req, res) => {
  */
 
 // TODO: ... your code here ...
+router.put('/api/geotags/:id', (req, res) => {
+	const { id } = req.params; 
+	const { latitude, longitude, name, hashtag } = req.body; 
+  
 
+	if (latitude == null || longitude == null || !name || !hashtag) {
+	  return res.status(400).send('Missing required fields');
+	}
+  
+	const tag = store.getTagByID(id);
+  
+	if (!tag) {
+	  return res.status(404).send('GeoTag not found');
+	}
+  
+	tag._location.lat = latitude;
+	tag._location.long = longitude;
+	tag._name = name;
+	tag._hashtag = hashtag;
+  
+	res.status(200).json(tag);
+  });
+  
 
 /**
  * Route '/api/geotags/:id' for HTTP 'DELETE' requests.
@@ -184,5 +261,19 @@ router.post('/discovery', (req, res) => {
  */
 
 // TODO: ... your code here ...
+router.delete('/api/geotags/:id', (req, res) => {
+	const { id } = req.params; 
+	
+	if (id == null) {
+		return res.status(400).send('Missing required fields');
+	}
+
+	const tag = store.getTagByID(id);
+	store.removeGeoTag(tag._name);
+
+	res.status(200).json(tag);
+
+});
+
 
 module.exports = router;

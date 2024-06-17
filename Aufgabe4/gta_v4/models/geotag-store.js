@@ -48,6 +48,10 @@ class InMemoryGeoTagStore {
     getGeoTags(){
         return this.#geotags;
     }
+
+    getTagByID(id) {
+        return this.#geotags.filter(tag => tag._id === parseInt(id))[0];
+    }
 }
 
 module.exports = InMemoryGeoTagStore;
