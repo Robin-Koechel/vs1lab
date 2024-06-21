@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css' crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoTagApp</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+</head>
+
+<body>
+    <header class="header">
+        <img src="/images/location.png" class="header__image" alt="an image of a map and location">
+        <h1 class="header__title">GeoTagApp</h1>
+        <nav class="header__navigation">
+            <a href="#">About</a> | <a href="#">Help</a> | <a href="/">Home</a>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="main__tagging tagging">
+            <h2>Tagging</h2>
+            <form id="tag-form" action="/tagging" method="post">
+                <fieldset>
+                    <legend class="tagging_legend">Add a new GeoTag</legend>
+                    <label for="tagging_latitude">Latitude:</label>
+                    <input id="tagging_latitude" placeholder="49.1253324" name="tagging_latitude" type="text" readonly
+                        value="<%= currentLatitude %>">
+                    <label for="tagging_longitude">Longitude:</label>
+                    <input id="tagging_longitude" placeholder="8.4" name="tagging_longitude" type="text" readonly
+                        value="<%= currentLongitude %>">
+                    <label for="tagging_name">Name:</label>
+                    <input id="tagging_name" placeholder="Bib" name="tagging_name" type="text" required>
+                    <label for="tagging_tag">Hashtag:</label>
+                    <input id="tagging_tag" placeholder="#bib" name="tagging_tag" type="text" required>
+                    <input id="tagging_button" type="submit" value="Add Tag">
+                </fieldset>
+            </form>
+        </section>
+
+        <section class="main__discovery discovery">
+            <h2>Discovery</h2>
+            <form class="discovery__search" id="discoveryFilterForm" action="/discovery" method="post">
+                <fieldset>
+                    <legend class="discovery_legend">Discovery</legend>
+                    <label for="discovery_search">Search term or keyword:</label>
+                    <input id="discovery_search" name="discovery_search" type="text" required>
+                    <input id="discovery_latitude" name="discovery_latitude" type="hidden"
+                        value="<%= currentLatitude %>">
+                    <input id="discovery_longitude" name="discovery_longitude" type="hidden"
+                        value="<%= currentLongitude %>">
+                    <input id="discovery_button" type="submit" value="Search">
+                </fieldset>
+            </form>
+            <div class="discovery__wrapper">
+                <div class="discovery__taglist">
+                    <ul class="discovery__results" id="discoveryResults">
+                        <% if (taglist !==undefined) taglist.forEach(function(gtag) { %>
+                            <li>
+                                <%= gtag.name %> ( <%= gtag.latitude %>,<%= gtag.longitude %>) <%= gtag.hashtag %>
+                            </li>
+                            <% }); %>
+                    </ul>
+                </div>
+                <div class="discovery__map" id="map" data-tags='<%= JSON.stringify(taglist) %>'>
+                    <img src="/images/mapview.jpg" alt="a map with locations" id="mapView" />
+                    <p>Result map</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <span>(c) 2021/22 HKA_IWI_VSYS</span>
+    </footer>
+
+    <script src="/javascripts/location-helper.js"></script>
+    <script src="/javascripts/map-manager.js"></script>
+    <script src="/javascripts/geotagging.js"></script>
+
+</body>
+
+</html>
