@@ -39,6 +39,15 @@ const app = require('../app');
 const examples = new GeoTagExamples();
 examples.populateStore(store);
 
+
+router.get('/', (req, res) => {
+	res.render('index', { 
+	  taglist: store.getGeoTags(), // Example default coordinates
+	  currentLatitude: null,
+	  currentLongitude: null
+	});
+  });
+
 // API routes (A4)
 
 /**
