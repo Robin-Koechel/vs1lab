@@ -54,15 +54,25 @@
                     <input id="discovery_button" type="submit" value="Search">
                 </fieldset>
             </form>
+            <div id="dataContainer" data-json='<%= JSON.stringify(taglist) %>'></div>
             <div class="discovery__wrapper">
-                <div class="discovery__taglist">
-                    <ul class="discovery__results" id="discoveryResults">
-                        <% if (taglist !==undefined) taglist.forEach(function(gtag) { %>
-                            <li>
-                                <%= gtag.name %> ( <%= gtag.latitude %>,<%= gtag.longitude %>) <%= gtag.hashtag %>
-                            </li>
+                
+                <div class="discovery__taglist" visibility="hidden" type="hidden">
+                    <ul class="discovery__results" id="discoveryResults" visibility="hidden">
+                        <% if (taglist !== undefined) { %>
+                            <% taglist.slice(0, 5).forEach(function(gtag) { %>
+                                <li>
+                                    <%= gtag.name %> ( <%= gtag.latitude %>,<%= gtag.longitude %>) <%= gtag.hashtag %>
+                                </li>
                             <% }); %>
+                        <% } %>
+                        
                     </ul>
+                    <div class="discovery_page_scrolling">
+                        <input id="scoll_left" type="button" value="←">
+                        <p id="scrollPageNumber">1 of 3</p>
+                        <input id="scoll_right" type="button" value="→">
+                    </div>
                 </div>
                 <div class="discovery__map" id="map" data-tags='<%= JSON.stringify(taglist) %>'>
                     <img src="/images/mapview.jpg" alt="a map with locations" id="mapView" />

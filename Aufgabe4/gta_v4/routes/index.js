@@ -22,8 +22,6 @@ const router = express.Router();
 // eslint-disable-next-line no-unused-vars
 const GeoTag = require('../models/geotag');
 
-const MapManager = require('../public/javascripts/map-manager')
-
 /**
  * The module "geotag-store" exports a class GeoTagStore. 
  * It provides an in-memory store for geotag objects.
@@ -38,13 +36,17 @@ const GeoTagExamples = require('../models/geotag-examples');
 const app = require('../app');
 const examples = new GeoTagExamples();
 examples.populateStore(store);
+const numberPages = 5;
 
 
 router.get('/', (req, res) => {
+	const tags =store.getGeoTags()
 	res.render('index', { 
-	  taglist: store.getGeoTags(), // Example default coordinates
+	  taglist: tags,
 	  currentLatitude: null,
-	  currentLongitude: null
+	  currentLongitude: null,
+	  currentPage:1, 
+	  numberPages: Math.floor(store.getNumberEntries()/numberPages)+1
 	});
   });
 

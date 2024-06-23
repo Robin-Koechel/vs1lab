@@ -1,5 +1,7 @@
 console.log("The geoTagging script is going to start...");
 
+var currentPageNumber = 1;
+
 function updateLocation() {
     var latInput = document.getElementById("tagging_latitude");
     var longInput = document.getElementById("tagging_longitude");
@@ -30,12 +32,12 @@ function updateMap(lat, long) {
             'Content-Type': 'application/json',
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        var mapManager = new MapManager();
-        mapManager.initMap(lat, long);
-        mapManager.updateMarkers(lat, long, data.taglist);
-    });
+        .then(response => response.json())
+        .then(data => {
+            var mapManager = new MapManager();
+            mapManager.initMap(lat, long);
+            mapManager.updateMarkers(lat, long, data.taglist);
+        });
 }
 
 function fetchAndUpdateTags(lat, long, taglist) {
@@ -72,13 +74,18 @@ function pressTagging(event) {
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data);
-        const li = document.createElement('li');
-        li.textContent = `${data._name} (${data._location.lat}, ${data._location.long}) ${data._hashtag}`;
-        discoveryResults.appendChild(li);
+        .then(response => response.json());
 
+    fetch('/api/geotags',{
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }).then(response => response.json())
+    .then(data => {
+        const dataContainer = document.getElementById('dataContainer');
+        console.log(data.taglist);
+        dataContainer.setAttribute('data-json', JSON.stringify(data.taglist));
     });
 }
 
@@ -88,10 +95,12 @@ function pressDiscovery(event) {
     const discoveryForm = document.getElementById('discoveryFilterForm');
 
     const formData = new FormData(discoveryForm);
+    const d_lat = formData.get('discovery_latitude');
+    const d_long = formData.get('discovery_longitude');
     const params = new URLSearchParams({
         discovery_search: formData.get('discovery_search'),
-        discovery_latitude: formData.get('discovery_latitude'),
-        discovery_longitude: formData.get('discovery_longitude')
+        discovery_latitude: d_lat,
+        discovery_longitude: d_long
     });
 
     fetch(`/api/geotags?${params.toString()}`, {
@@ -100,36 +109,99 @@ function pressDiscovery(event) {
             'Content-Type': 'application/json',
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data.taglist);
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data.taglist);
 
-        const discoveryResults = document.getElementById('discoveryResults');
-        discoveryResults.innerHTML = ''; // Clear previous results
+            const dataContainer = document.getElementById('dataContainer');
+            console.log(data.taglist);
+            var tags = JSON.stringify(data.taglist)
+            dataContainer.setAttribute('data-json', tags);
 
-        data.taglist.forEach(tag => {
-            const li = document.createElement('li');
-            li.textContent = `${tag._name} (${tag._location.lat}, ${tag._location.long}) ${tag._hashtag}`;
-            discoveryResults.appendChild(li);
+
+            currentPageNumber = 1;
+            displayCurrentPage();
+
+            var mapManager = new MapManager();
+            mapManager.initMap(d_lat, d_long);
+            mapManager.updateMarkers(d_lat, d_long, tags);
         });
+}
 
-        var mapManager = new MapManager();
-        mapManager.initMap(formData.get('discovery_latitude'), formData.get('discovery_longitude'));
-        mapManager.updateMarkers(formData.get('discovery_latitude'), formData.get('discovery_longitude'), data.taglist);
+function displayCurrentPage() {
+    // Get the tag list from the HTML element
+    var taglist_json = document.getElementById("dataContainer").getAttribute("data-json");
+    var taglist = JSON.parse(taglist_json);
 
+    // Determine the number of tags per page
+    const tagsPerPage = 5;
+
+    // Calculate the start and end index for the current page
+    const startIndex = (currentPageNumber - 1) * tagsPerPage;
+    const endIndex = startIndex + tagsPerPage;
+
+    // Slice the tag list to get only the tags for the current page
+    const tags = taglist.slice(startIndex, endIndex);
+
+    // Get the element where the tags will be displayed
+    const discoveryResults = document.getElementById('discoveryResults');
+    discoveryResults.innerHTML = ''; // Clear previous results
+
+    // Loop through the tags and create list items for each
+    tags.forEach(tag => {
+        const li = document.createElement('li');
+        li.textContent = `${tag._name} (${tag._location.lat}, ${tag._location.long}) ${tag._hashtag}`;
+        discoveryResults.appendChild(li);
     });
+
+
+}
+
+function scrollRight() {
+    if (currentPageNumber < getNumberPages()) {
+        currentPageNumber++;
+        displayCurrentPage();
+
+        // Update the scrolling title with the current page number and total pages
+        var scrollingTitle = document.getElementById('scrollPageNumber');
+        scrollingTitle.textContent = currentPageNumber + " of " + getNumberPages();
+    }
+}
+
+function getNumberPages() {
+    taglist_json = document.getElementById("dataContainer").getAttribute("data-json");
+    var taglist = JSON.parse(taglist_json);
+    return Math.floor(taglist.length / 5) + 1
+}
+
+function scrollLeft() {
+
+    if (currentPageNumber > 1) {
+        currentPageNumber--;
+        displayCurrentPage();
+
+    }
+    // Update the scrolling title with the current page number and total pages
+    var scrollingTitle = document.getElementById('scrollPageNumber');
+    scrollingTitle.textContent = currentPageNumber + " of " + getNumberPages();
+
 }
 
 // Wait for the page to fully load its DOM content, then call updateLocation
 document.addEventListener('DOMContentLoaded', (event) => {
     const tagForm = document.getElementById('tag-form');
     const discoveryForm = document.getElementById('discoveryFilterForm');
+    const scollRightForm = document.getElementById('scoll_right');
+    const scollLeftForm = document.getElementById('scoll_left');
 
     // Event listener for tagging form
     tagForm.addEventListener('submit', pressTagging);
 
     // Event listener for discovery form
     discoveryForm.addEventListener('submit', pressDiscovery);
+
+    scollRightForm.addEventListener('click', scrollRight);
+    scollLeftForm.addEventListener('click', scrollLeft);
 
     updateLocation();
 });

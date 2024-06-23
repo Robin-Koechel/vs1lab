@@ -247,3 +247,14 @@ a {
   height: 400px;
   width: 400px;
 }
+
+.discovery_page_scrolling {
+  display: flex;
+  align-items: center;
+   
+}
+
+.discovery_page_scrolling input[type="button"],
+.discovery_page_scrolling p {
+  margin: 0 10px;
+}
