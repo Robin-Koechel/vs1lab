@@ -18,17 +18,13 @@
  */
 class InMemoryGeoTagStore {
     #geotags;
-    #id;
 
     constructor() {
         // Private array to store geotags
         this.#geotags = [];
-        this.#id = 1;
     }
 
     addGeoTag(geoTag) {
-        geoTag.id = this.#id;
-        this.#id += 1;
         this.#geotags.push(geoTag);
     }
 

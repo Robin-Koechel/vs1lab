@@ -10,7 +10,8 @@
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "http-errors": "~1.6.3",
-    "morgan": "*"
+    "morgan": "*",
+    "react-scripts": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
