@@ -57,4 +57,16 @@
                 .addTo(this.#markers);  
         }
     }
+
+    /**
+     * Adds a marker to the map based on the given latitude, longitude and tagname.
+     * @param {*} lat the latitude of the marker
+     * @param {*} long the longitude of the marker
+     * @param {*} name the name of the marker
+     */
+    addMarker(lat, long, name) {
+        L.marker([lat, long], { icon: this.#defaultIcon })
+        .bindPopup(name)
+        .addTo(this.#markers);
+    }
 }

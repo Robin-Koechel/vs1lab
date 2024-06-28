@@ -1,6 +1,7 @@
 console.log("The geoTagging script is going to start...");
 
 var currentPageNumber = 1;
+var mapManager = new MapManager();
 
 function updateLocation() {
     var latInput = document.getElementById("tagging_latitude");
@@ -34,7 +35,6 @@ function updateMap(lat, long) {
     })
         .then(response => response.json())
         .then(data => {
-            var mapManager = new MapManager();
             mapManager.initMap(lat, long);
             mapManager.updateMarkers(lat, long, data.taglist);
         });
@@ -84,8 +84,11 @@ function pressTagging(event) {
     }).then(response => response.json())
     .then(data => {
         const dataContainer = document.getElementById('dataContainer');
-        console.log(data.taglist);
         dataContainer.setAttribute('data-json', JSON.stringify(data.taglist));
+        const lat = data.taglist[data.taglist.length-1]._location.lat;
+        const long = data.taglist[data.taglist.length-1]._location.long;
+        const name = data.taglist[data.taglist.length-1]._name;
+        mapManager.addMarker(lat, long, name);
     });
 }
 
@@ -175,7 +178,6 @@ function getNumberPages() {
 }
 
 function scrollLeft() {
-
     if (currentPageNumber > 1) {
         currentPageNumber--;
         displayCurrentPage();
