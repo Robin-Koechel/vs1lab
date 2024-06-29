@@ -76,20 +76,26 @@ function pressTagging(event) {
     })
         .then(response => response.json());
 
-    fetch('/api/geotags',{
+    fetch('/api/geotags', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
         }
     }).then(response => response.json())
-    .then(data => {
-        const dataContainer = document.getElementById('dataContainer');
-        dataContainer.setAttribute('data-json', JSON.stringify(data.taglist));
-        const lat = data.taglist[data.taglist.length-1]._location.lat;
-        const long = data.taglist[data.taglist.length-1]._location.long;
-        const name = data.taglist[data.taglist.length-1]._name;
-        mapManager.addMarker(lat, long, name);
-    });
+        .then(data => {
+            const dataContainer = document.getElementById('dataContainer');
+            dataContainer.setAttribute('data-json', JSON.stringify(data.taglist));
+            const lat = data.taglist[data.taglist.length - 1]._location.lat;
+            const long = data.taglist[data.taglist.length - 1]._location.long;
+            const name = data.taglist[data.taglist.length - 1]._name;
+            mapManager.addMarker(lat, long, name);
+            
+            displayCurrentPage();
+
+            // Update the scrolling title with the current page number and total pages
+            var scrollingTitle = document.getElementById('scrollPageNumber');
+            scrollingTitle.textContent = currentPageNumber + " of " + getNumberPages();
+        });
 }
 
 function pressDiscovery(event) {
@@ -125,28 +131,31 @@ function pressDiscovery(event) {
             currentPageNumber = 1;
             displayCurrentPage();
 
-            var mapManager = new MapManager();
+            // Update the scrolling title with the current page number and total pages
+            const numberPages = getNumberPages();
+            var scrollingTitle = document.getElementById('scrollPageNumber');
+            if(numberPages > 0){
+            scrollingTitle.textContent = "1 of " + numberPages;
+            }else{
+                scrollingTitle.textContent = "0 of 0";
+            }
+
             mapManager.initMap(d_lat, d_long);
             mapManager.updateMarkers(d_lat, d_long, tags);
         });
 }
 
 function displayCurrentPage() {
-    // Get the tag list from the HTML element
     var taglist_json = document.getElementById("dataContainer").getAttribute("data-json");
     var taglist = JSON.parse(taglist_json);
 
-    // Determine the number of tags per page
     const tagsPerPage = 5;
 
-    // Calculate the start and end index for the current page
     const startIndex = (currentPageNumber - 1) * tagsPerPage;
     const endIndex = startIndex + tagsPerPage;
 
-    // Slice the tag list to get only the tags for the current page
     const tags = taglist.slice(startIndex, endIndex);
 
-    // Get the element where the tags will be displayed
     const discoveryResults = document.getElementById('discoveryResults');
     discoveryResults.innerHTML = ''; // Clear previous results
 
@@ -174,7 +183,7 @@ function scrollRight() {
 function getNumberPages() {
     taglist_json = document.getElementById("dataContainer").getAttribute("data-json");
     var taglist = JSON.parse(taglist_json);
-    return Math.floor(taglist.length / 5) + 1
+    return Math.ceil(taglist.length / 5)
 }
 
 function scrollLeft() {
