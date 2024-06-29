@@ -139,9 +139,10 @@ function pressDiscovery(event) {
             }else{
                 scrollingTitle.textContent = "0 of 0";
             }
-
-            mapManager.initMap(d_lat, d_long);
-            mapManager.updateMarkers(d_lat, d_long, tags);
+            
+            const taglist = document.getElementById("dataContainer").getAttribute("data-json");
+            const taglistObj = JSON.parse(taglist);   
+            mapManager.hideMarkers(taglistObj);    
         });
 }
 

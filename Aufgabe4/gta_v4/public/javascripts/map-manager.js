@@ -69,4 +69,14 @@
         .bindPopup(name)
         .addTo(this.#markers);
     }
+
+    hideMarkers(taglist) {
+        console.log(taglist);
+        this.#markers.clearLayers();
+        for (const tag of taglist) {
+            L.marker([tag._location.lat, tag._location.long], { icon: this.#defaultIcon })
+            .bindPopup(tag._name)
+            .addTo(this.#markers);
+        }
+    }   
 }
