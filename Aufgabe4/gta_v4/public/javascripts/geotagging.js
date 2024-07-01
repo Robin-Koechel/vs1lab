@@ -2,6 +2,7 @@ console.log("The geoTagging script is going to start...");
 
 var currentPageNumber = 1;
 var numberPages = 1;
+var taggingPressed = "true";
 var mapManager = new MapManager();
 
 function updateLocation() {
@@ -58,6 +59,7 @@ function fetchAndUpdateTags(lat, long, taglist) {
 
 function pressTagging(event) {
     event.preventDefault(); // Prevents the form from submitting
+    taggingPressed = "true";
     const tagForm = document.getElementById('tag-form');
 
     const formData = new FormData(tagForm);
@@ -77,7 +79,7 @@ function pressTagging(event) {
     })
         .then(response => response.json());
 
-    fetch('/api/geotags?' + new URLSearchParams({ pagenumber: currentPageNumber, discovery_search: '', discovery_latitude: formData.get('tagging_latitude'), discovery_longitude: formData.get('tagging_longitude') }), {
+    fetch('/api/geotags?' + new URLSearchParams({ pagenumber: currentPageNumber,taggingPressed:taggingPressed, discovery_search: '', discovery_latitude: formData.get('tagging_latitude'), discovery_longitude: formData.get('tagging_longitude') }), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -103,7 +105,9 @@ function pressTagging(event) {
 }
 
 function pressDiscovery(event) {
+    
     event.preventDefault(); // Prevents the form from submitting
+    taggingPressed = "false";
 
     const discoveryForm = document.getElementById('discoveryFilterForm');
 
@@ -112,6 +116,7 @@ function pressDiscovery(event) {
     const d_long = formData.get('discovery_longitude');
     const params = new URLSearchParams({
         pagenumber: '1',
+        taggingPressed:taggingPressed,
         discovery_search: formData.get('discovery_search'),
         discovery_latitude: d_lat,
         discovery_longitude: d_long
@@ -134,14 +139,16 @@ function pressDiscovery(event) {
 
 
             currentPageNumber = 1;
-            numberPages = data1.numberPages;
+            console.log(data);
+            numberPages = data.numberPages;
+            console.log(data.numberPages);
             displayCurrentPage();
 
             // Update the scrolling title with the current page number and total pages
-            const numberPages = getNumberPages();
+            const numberPages1 = getNumberPages();
             var scrollingTitle = document.getElementById('scrollPageNumber');
-            if (numberPages > 0) {
-                scrollingTitle.textContent = "1 of " + numberPages;
+            if (numberPages1 > 0) {
+                scrollingTitle.textContent = "1 of " + numberPages1;
             } else {
                 scrollingTitle.textContent = "0 of 0";
             }
@@ -153,27 +160,46 @@ function pressDiscovery(event) {
 }
 
 function displayCurrentPage() {
-    var taglist_json = document.getElementById("dataContainer").getAttribute("data-json");
-    var taglist = JSON.parse(taglist_json);
+    const discoveryForm = document.getElementById('discoveryFilterForm');
 
-    const tagsPerPage = 5;
+    const formData = new FormData(discoveryForm);
 
-    const startIndex = (currentPageNumber - 1) * tagsPerPage;
-    const endIndex = startIndex + tagsPerPage;
+    const dataContainer = document.getElementById('dataContainer');
 
-    const tags = taglist.slice(startIndex, endIndex);
+    var lat = document.getElementById('tagging_latitude').getAttribute('value');
+    var long = document.getElementById('tagging_longitude').getAttribute('value');
+    var search = formData.get('discovery_search');
 
 
+    console.log("lat " + lat);
+    console.log("long " + long);
+    fetch('/api/geotags?' + new URLSearchParams({
+         pagenumber: currentPageNumber,
+         taggingPressed:taggingPressed,
+         discovery_search: search,
+         discovery_latitude: lat,
+         discovery_longitude: long
+        }), {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
 
-    const discoveryResults = document.getElementById('discoveryResults');
-    discoveryResults.innerHTML = ''; // Clear previous results
+            const discoveryResults = document.getElementById('discoveryResults');
+            discoveryResults.innerHTML = ''; // Clear previous results
 
-    // Loop through the tags and create list items for each
-    tags.forEach(tag => {
-        const li = document.createElement('li');
-        li.textContent = `${tag._name} (${tag._location.lat}, ${tag._location.long}) ${tag._hashtag}`;
-        discoveryResults.appendChild(li);
-    });
+            console.log(data.taglist);
+            data.taglist.forEach(tag => {
+                const li = document.createElement('li');
+                li.textContent = `${tag._name} (${tag._location.lat}, ${tag._location.long}) ${tag._hashtag}`;
+                discoveryResults.appendChild(li);
+            });
+        });
+
+
 
 }
 

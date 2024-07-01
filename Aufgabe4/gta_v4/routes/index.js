@@ -65,39 +65,46 @@ router.get('/', (req, res) => {
  */
 
 // TODO: ... your code here ...
+var tmpTags = store.getGeoTags();
 router.get('/api/geotags', (req, res) => {
-	const {pagenumber='', discovery_search = '', discovery_latitude = 0, discovery_longitude = 0 } = req.query;
+	const {pagenumber='', taggingPressed, discovery_search = '', discovery_latitude = 0, discovery_longitude = 0 } = req.query;
+
 	console.log(req.query);
-	let tags = store.getGeoTags();
-	var numberPAGES = 1;
+
+	var numberPAGES=Math.ceil(tmpTags.length/5);
+
+	console.log(taggingPressed);
+
 	// Filter by search term if provided
 	if (discovery_search) {
-		tags = tags.filter(tag => {
+		tmpTags = store.getGeoTags().filter(tag => {
 			return tag.name.includes(discovery_search) || tag.hashtag.includes(discovery_search);
 		});
-		numberPAGES=Math.ceil(store.getGeoTags().length/5);
+		numberPAGES=Math.ceil(tmpTags.length/5);
 	}
-	console.log(discovery_latitude);
-	console.log(discovery_longitude);
+
+	if(taggingPressed=="true"){
+		tmpTags = store.getGeoTags();
+		numberPAGES=Math.ceil(tmpTags.length/5);
+	}
+
 	// Filter by proximity if coordinates are provided
 	if (discovery_latitude && discovery_longitude) {
-		tags = tags.filter(tag => {
+		tmpTags = tmpTags.filter(tag => {
 			const distance = Math.sqrt(Math.pow(discovery_latitude - tag.latitude, 2) + Math.pow(discovery_longitude - tag.longitude, 2));
 			return distance <= 100; // Assuming 100 is the desired radius
 		});
-		numberPAGES=Math.ceil(store.getGeoTags().length/5);
 	}
 
 	if(pagenumber){
 		const startIndex = (pagenumber - 1) * 5;
 		const endIndex = startIndex + 5;
 	
-		tags = tags.slice(startIndex, endIndex);
-		numberPAGES=Math.ceil(store.getGeoTags().length/5);
+		tmpTags = tmpTags.slice(startIndex, endIndex);
 	}
 
 	res.status(200).send({
-		taglist: tags,
+		taglist: tmpTags,
 		numberPages:numberPAGES
 	});
 });
