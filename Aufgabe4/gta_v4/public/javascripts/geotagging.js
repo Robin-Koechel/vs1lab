@@ -1,6 +1,7 @@
 console.log("The geoTagging script is going to start...");
 
 var currentPageNumber = 1;
+var numberPages = 1;
 var mapManager = new MapManager();
 
 function updateLocation() {
@@ -61,8 +62,8 @@ function pressTagging(event) {
 
     const formData = new FormData(tagForm);
     const data = {
-        latitude: formData.get('tagging_latitude'),
-        longitude: formData.get('tagging_longitude'),
+        latitude: parseFloat(formData.get('tagging_latitude')),
+        longitude: parseFloat(formData.get('tagging_longitude')),
         name: formData.get('tagging_name'),
         hashtag: formData.get('tagging_tag')
     };
@@ -76,29 +77,23 @@ function pressTagging(event) {
     })
         .then(response => response.json());
 
-
-
-    const params = new URLSearchParams({
-        pagenumber: '1',
-        discovery_search: '',
-        discovery_latitude: formData.get('tagging_latitude'),
-        discovery_longitude: formData.get('tagging_longitude')
-    });
-
-    fetch(`/api/geotags?${params.toString()}`, {
+    fetch('/api/geotags?' + new URLSearchParams({ pagenumber: currentPageNumber, discovery_search: '', discovery_latitude: formData.get('tagging_latitude'), discovery_longitude: formData.get('tagging_longitude') }), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
         }
     }).then(response => response.json())
-        .then(data => {
+        .then(data1 => {
+            console.log(data1);
             const dataContainer = document.getElementById('dataContainer');
-            dataContainer.setAttribute('data-json', JSON.stringify(data.taglist));
-            const lat = data.taglist[data.taglist.length - 1]._location.lat;
-            const long = data.taglist[data.taglist.length - 1]._location.long;
-            const name = data.taglist[data.taglist.length - 1]._name;
+            dataContainer.setAttribute('data-json', JSON.stringify(data1.taglist));
+
+            const lat = data1.taglist[data1.taglist.length - 1]._location.lat;
+            const long = data1.taglist[data1.taglist.length - 1]._location.long;
+            const name = data1.taglist[data1.taglist.length - 1]._name;
+            numberPages = data1.numberPages;
             mapManager.addMarker(lat, long, name);
-            
+
             displayCurrentPage();
 
             // Update the scrolling title with the current page number and total pages
@@ -139,25 +134,26 @@ function pressDiscovery(event) {
 
 
             currentPageNumber = 1;
+            numberPages = data1.numberPages;
             displayCurrentPage();
 
             // Update the scrolling title with the current page number and total pages
             const numberPages = getNumberPages();
             var scrollingTitle = document.getElementById('scrollPageNumber');
-            if(numberPages > 0){
-            scrollingTitle.textContent = "1 of " + numberPages;
-            }else{
+            if (numberPages > 0) {
+                scrollingTitle.textContent = "1 of " + numberPages;
+            } else {
                 scrollingTitle.textContent = "0 of 0";
             }
-            
+
             const taglist = document.getElementById("dataContainer").getAttribute("data-json");
-            const taglistObj = JSON.parse(taglist);   
-            mapManager.hideMarkers(taglistObj);    
+            const taglistObj = JSON.parse(taglist);
+            mapManager.hideMarkers(taglistObj);
         });
 }
 
 function displayCurrentPage() {
-    /**var taglist_json = document.getElementById("dataContainer").getAttribute("data-json");
+    var taglist_json = document.getElementById("dataContainer").getAttribute("data-json");
     var taglist = JSON.parse(taglist_json);
 
     const tagsPerPage = 5;
@@ -166,61 +162,18 @@ function displayCurrentPage() {
     const endIndex = startIndex + tagsPerPage;
 
     const tags = taglist.slice(startIndex, endIndex);
-**/
-
-const tagForm = document.getElementById('tag-form');
-const formData = new FormData(tagForm);
-const d_lat = formData.get('discovery_latitude');
-const d_long = formData.get('discovery_longitude');
 
 
-const params = new URLSearchParams({
-    pagenumber: currentPageNumber,
-    discovery_search: formData.get('discovery_search'),
-    discovery_latitude: d_lat,
-    discovery_longitude: d_long
-});
 
-fetch(`/api/geotags?${params.toString()}`, {
-    method: 'GET',
-    headers: {
-        'Content-Type': 'application/json',
-    }
-})
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data.taglist);
-        const discoveryResults = document.getElementById('discoveryResults');
-        discoveryResults.innerHTML = ''; // Clear previous results
-    
-        // Loop through the tags and create list items for each
-        data.taglist.forEach(tag => {
-            const li = document.createElement('li');
-            li.textContent = `${tag._name} (${tag._location.lat}, ${tag._location.long}) ${tag._hashtag}`;
-            discoveryResults.appendChild(li);
-        });
-    
+    const discoveryResults = document.getElementById('discoveryResults');
+    discoveryResults.innerHTML = ''; // Clear previous results
+
+    // Loop through the tags and create list items for each
+    tags.forEach(tag => {
+        const li = document.createElement('li');
+        li.textContent = `${tag._name} (${tag._location.lat}, ${tag._location.long}) ${tag._hashtag}`;
+        discoveryResults.appendChild(li);
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
 
@@ -236,9 +189,8 @@ function scrollRight() {
 }
 
 function getNumberPages() {
-    taglist_json = document.getElementById("dataContainer").getAttribute("data-json");
-    var taglist = JSON.parse(taglist_json);
-    return Math.ceil(taglist.length / 5)
+
+    return numberPages;
 }
 
 function scrollLeft() {

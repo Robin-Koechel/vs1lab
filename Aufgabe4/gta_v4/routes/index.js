@@ -69,20 +69,23 @@ router.get('/api/geotags', (req, res) => {
 	const {pagenumber='', discovery_search = '', discovery_latitude = 0, discovery_longitude = 0 } = req.query;
 	console.log(req.query);
 	let tags = store.getGeoTags();
-
+	var numberPAGES = 1;
 	// Filter by search term if provided
 	if (discovery_search) {
 		tags = tags.filter(tag => {
 			return tag.name.includes(discovery_search) || tag.hashtag.includes(discovery_search);
 		});
+		numberPAGES=Math.ceil(store.getGeoTags().length/5);
 	}
-
+	console.log(discovery_latitude);
+	console.log(discovery_longitude);
 	// Filter by proximity if coordinates are provided
 	if (discovery_latitude && discovery_longitude) {
 		tags = tags.filter(tag => {
 			const distance = Math.sqrt(Math.pow(discovery_latitude - tag.latitude, 2) + Math.pow(discovery_longitude - tag.longitude, 2));
 			return distance <= 100; // Assuming 100 is the desired radius
 		});
+		numberPAGES=Math.ceil(store.getGeoTags().length/5);
 	}
 
 	if(pagenumber){
@@ -90,10 +93,12 @@ router.get('/api/geotags', (req, res) => {
 		const endIndex = startIndex + 5;
 	
 		tags = tags.slice(startIndex, endIndex);
+		numberPAGES=Math.ceil(store.getGeoTags().length/5);
 	}
 
 	res.status(200).send({
-		taglist: tags
+		taglist: tags,
+		numberPages:numberPAGES
 	});
 });
 
