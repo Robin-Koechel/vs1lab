@@ -66,7 +66,8 @@ router.get('/', (req, res) => {
 
 // TODO: ... your code here ...
 router.get('/api/geotags', (req, res) => {
-	const { discovery_search = '', discovery_latitude = 0, discovery_longitude = 0 } = req.query;
+	const {pagenumber='', discovery_search = '', discovery_latitude = 0, discovery_longitude = 0 } = req.query;
+	console.log(req.query);
 	let tags = store.getGeoTags();
 
 	// Filter by search term if provided
@@ -84,10 +85,19 @@ router.get('/api/geotags', (req, res) => {
 		});
 	}
 
+	if(pagenumber){
+		const startIndex = (pagenumber - 1) * 5;
+		const endIndex = startIndex + 5;
+	
+		tags = tags.slice(startIndex, endIndex);
+	}
+
 	res.status(200).send({
 		taglist: tags
 	});
 });
+
+
 
 
 /**

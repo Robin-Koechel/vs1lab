@@ -76,7 +76,16 @@ function pressTagging(event) {
     })
         .then(response => response.json());
 
-    fetch('/api/geotags', {
+
+
+    const params = new URLSearchParams({
+        pagenumber: '1',
+        discovery_search: '',
+        discovery_latitude: formData.get('tagging_latitude'),
+        discovery_longitude: formData.get('tagging_longitude')
+    });
+
+    fetch(`/api/geotags?${params.toString()}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -107,6 +116,7 @@ function pressDiscovery(event) {
     const d_lat = formData.get('discovery_latitude');
     const d_long = formData.get('discovery_longitude');
     const params = new URLSearchParams({
+        pagenumber: '1',
         discovery_search: formData.get('discovery_search'),
         discovery_latitude: d_lat,
         discovery_longitude: d_long
@@ -147,7 +157,7 @@ function pressDiscovery(event) {
 }
 
 function displayCurrentPage() {
-    var taglist_json = document.getElementById("dataContainer").getAttribute("data-json");
+    /**var taglist_json = document.getElementById("dataContainer").getAttribute("data-json");
     var taglist = JSON.parse(taglist_json);
 
     const tagsPerPage = 5;
@@ -156,16 +166,60 @@ function displayCurrentPage() {
     const endIndex = startIndex + tagsPerPage;
 
     const tags = taglist.slice(startIndex, endIndex);
+**/
 
-    const discoveryResults = document.getElementById('discoveryResults');
-    discoveryResults.innerHTML = ''; // Clear previous results
+const tagForm = document.getElementById('tag-form');
+const formData = new FormData(tagForm);
+const d_lat = formData.get('discovery_latitude');
+const d_long = formData.get('discovery_longitude');
 
-    // Loop through the tags and create list items for each
-    tags.forEach(tag => {
-        const li = document.createElement('li');
-        li.textContent = `${tag._name} (${tag._location.lat}, ${tag._location.long}) ${tag._hashtag}`;
-        discoveryResults.appendChild(li);
+
+const params = new URLSearchParams({
+    pagenumber: currentPageNumber,
+    discovery_search: formData.get('discovery_search'),
+    discovery_latitude: d_lat,
+    discovery_longitude: d_long
+});
+
+fetch(`/api/geotags?${params.toString()}`, {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+    }
+})
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data.taglist);
+        const discoveryResults = document.getElementById('discoveryResults');
+        discoveryResults.innerHTML = ''; // Clear previous results
+    
+        // Loop through the tags and create list items for each
+        data.taglist.forEach(tag => {
+            const li = document.createElement('li');
+            li.textContent = `${tag._name} (${tag._location.lat}, ${tag._location.long}) ${tag._hashtag}`;
+            discoveryResults.appendChild(li);
+        });
+    
     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }
